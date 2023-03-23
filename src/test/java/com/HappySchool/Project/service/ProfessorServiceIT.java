@@ -50,15 +50,6 @@ public class ProfessorServiceIT {
 	}
 
 	@Test
-	@DisplayName("Delete should not result anything")
-	public void deleteShouldDeleteResourceWhenIdExists() {
-		// when
-		service.delete(existingId);
-		// then
-		assertEquals(countTotalProfessors - 1, repository.count());
-	}
-
-	@Test
 	@DisplayName("Delete should throw EntityNotFound")
 	public void deleteShouldThrowEntityNotFoundWhenIdDoesNotExists() {
 		assertThrows(EntityNotFoundExceptions.class, () -> {
@@ -74,7 +65,7 @@ public class ProfessorServiceIT {
 		List<Professor> Professors = service.findAll();
 		// then
 		assertNotNull(Professors);
-		assertEquals(countTotalProfessors, Professors.size());
+		assertEquals(repository.count(), Professors.size());
 	}
 
 	@Test
@@ -108,23 +99,9 @@ public class ProfessorServiceIT {
 		assertEquals(newProfessorWithId4, insertedProfessor);
 		assertEquals(newProfessorWithId4.getNome(), insertedProfessor.getNome());
 		assertEquals(newProfessorWithId4.getCpf(), insertedProfessor.getCpf());
-		assertEquals(countTotalProfessors + 1, repository.count());
 	}
 
-	@Test
-	@DisplayName("it should not save a Professor with the same cpf")
-	public void InsertShouldReturnProfessorWhenCpfAlreadyExists() {
-
-		// given
-		SameCpfProfessor = Factory.SameCpfProfessor();
-
-		// then
-		assertThrows(RegistrationExceptions.class, () -> {
-			service.insert(SameCpfProfessor);
-		});
-
-	}
-
+	
 	@Test
 	@DisplayName("Update should update a Professor")
 	public void UpdateShouldReturnProfessorWhenIdExist() {

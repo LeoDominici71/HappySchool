@@ -3,6 +3,7 @@ package com.HappySchool.Project.controller;
 import java.net.URI;
 import java.util.List;
 
+import com.HappySchool.Project.services.DiretorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.HappySchool.Project.entities.Diretor;
-import com.HappySchool.Project.services.DiretorService;
 import com.HappySchool.Project.servicesException.RegistrationExceptions;
 
 import jakarta.validation.Valid;

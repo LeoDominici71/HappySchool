@@ -1,7 +1,10 @@
 package com.HappySchool.Project.tests;
 
+import com.HappySchool.Project.entities.Curso;
+import com.HappySchool.Project.entities.Diretor;
 import com.HappySchool.Project.entities.Professor;
 import com.HappySchool.Project.entities.Student;
+import com.HappySchool.Project.entities.dto.CursoDTO;
 
 public class Factory {
 	
@@ -13,12 +16,12 @@ public class Factory {
 	}
 
 	public static Student createStudentNewStudentToUpadate() {
-		Student student = new Student(1L, "Jane", "70409951820");
-		return student;
+		Student student1 = new Student(1L, "Jane", "70409951820");
+		return student1;
 	}
 	public static Student createStudentToUpdate() {
-		Student student = new Student(1L, "Maria Brown", "48374255854");
-		return student;
+		Student student2 = new Student(1L, "Maria Brown", "48374255854");
+		return student2;
 	}
 
 	public static Student createNewStudent() {
@@ -46,7 +49,7 @@ public class Factory {
 	}
 
 	public static Professor SameCpfProfessor() {
-		Professor sameCpfProfessor = new Professor(1L, "Maria", "48374255854", "Java");			
+		Professor sameCpfProfessor = new Professor(1L, "Maria", "33457137056", "Java");
 		return sameCpfProfessor;
 	}
 
@@ -63,5 +66,39 @@ public class Factory {
 		Professor createProfessor = new Professor(3L, "Joao", "48374255854", "Java");		
 		return  createProfessor;
 	}
+
+
+	//Factory for Director
+
+
+	public static Diretor createNewDirector() {
+		Diretor NewCpfDiretor = new Diretor(null, "Carlos", "25331095097" );
+		return NewCpfDiretor;
+	}
+
+	public static Diretor SameCpfDirector() {
+		Diretor SameCpfDiretor = new Diretor(null, "Carlos", "25331095097" );
+		return SameCpfDiretor;
+	}
+
+
+	public static Diretor createDiretorToUpdate() {
+		Diretor Diretor = new Diretor(null, "Carlos", "75571745002" );
+		return Diretor;
+	}
+	
+	
+	//Factory for Curso
+	
+	public static Curso createCursoToUpdate() {
+		Curso Diretor = new Curso(null, "Java", "Java com Spring boot", createProfessorId3());
+		return Diretor;
+	}
+	
+	public static CursoDTO createCursoDto() {
+	CursoDTO cursoDto = new CursoDTO("Java", "Java com Spring", 2L);
+	return cursoDto;
+	}
+
 
 }

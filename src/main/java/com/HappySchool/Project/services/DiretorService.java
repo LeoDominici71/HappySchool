@@ -1,69 +1,66 @@
 package com.HappySchool.Project.services;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.HappySchool.Project.entities.Diretor;
+import com.HappySchool.Project.repository.DiretorRepository;
+import com.HappySchool.Project.servicesException.DatabaseExceptions;
+import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
+import com.HappySchool.Project.servicesException.RegistrationExceptions;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import com.HappySchool.Project.entities.Diretor;
-import com.HappySchool.Project.repository.DiretorRepository;
-import com.HappySchool.Project.servicesException.DataExceptions;
-import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
-
-import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DiretorService {
 
-	@Autowired
-	private DiretorRepository repository;
+    private final DiretorRepository repository;
 
-	public List<Diretor> findAll() {
-		return repository.findAll();
+    public DiretorService(DiretorRepository repository) {
+        this.repository = repository;
 
-	}
+    }
 
-	public Diretor findById(Integer matricula) {
-		try{Optional<Diretor> obj = repository.findById(matricula);
-		return obj.get();
-	}catch (NoSuchElementException e) {
-		throw new EntityNotFoundExceptions("Matricula: " + matricula + " doesn't exist");
-	}
-	}
-	public boolean cpfExists(String cpf) {
-		Optional<Diretor> DiretorOptional = repository.findByCpf(cpf);
-		return DiretorOptional.isPresent();
-	}
+    public List<Diretor> findAll() {
+        return repository.findAll();
 
-	public Diretor insert(Diretor obj) {
-		try {return repository.save(obj);
+    }
 
-		}catch(DataIntegrityViolationException e){
-			throw new DataExceptions("There are Null fields");
-		}
-		}
+    public Diretor findById(Integer matricula) {
+        return repository.findById(matricula)
+                .orElseThrow(() -> new EntityNotFoundExceptions("Matricula doesn't exist"));
+    }
 
-	public void delete(Integer matricula) {
-		repository.findById(matricula).map(Diretor -> {
-			repository.delete(Diretor);
-			return Void.TYPE;
-		}).orElseThrow(() -> new EntityNotFoundExceptions("Matricula: " + matricula + " doesn't exist"));
+    public boolean cpfExists(String cpf) {
+        Optional<Diretor> DiretorOptional = repository.findByCpf(cpf);
+        return DiretorOptional.isPresent();
+    }
 
-	}
+    public Diretor insert(Diretor obj) throws RegistrationExceptions {
+        if (cpfExists(obj.getCpf())) {
+            throw new RegistrationExceptions("This CPF already exist");
+        }
+        return repository.save(obj);
 
-	public Diretor update(Integer matricula, Diretor upDiretor) {
-		try {
-			Diretor entity = repository.getReferenceById(matricula);
-			entity.setNome(upDiretor.getNome());
-			return repository.save(entity);
-		} catch (EntityNotFoundException e) {
-			throw new EntityNotFoundExceptions("Matricula: " + matricula + " doesn't exist");
-		}catch(DataIntegrityViolationException e){
-			throw new DataExceptions("There are Null fields");
-		}
-	}
+    }
 
+    public void delete(Integer matricula) {
+        try {
+            repository.findById(matricula).map(Diretor -> {
+                repository.delete(Diretor);
+                return Void.TYPE;
+            }).orElseThrow(() -> new EntityNotFoundExceptions("Diretor not found"));
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseExceptions("Cannot execute this action");
+        }
+    }
+
+
+    public Diretor update(Integer matricula, Diretor Diretor) {
+        return repository.findById(matricula).map(Diretors -> {
+            Diretors.setNome(Diretor.getNome());
+            return repository.save(Diretors);
+        }).orElseThrow(() -> new EntityNotFoundExceptions("Diretor not found"));
+
+    }
 }

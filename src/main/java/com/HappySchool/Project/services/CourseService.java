@@ -67,16 +67,13 @@ public class CourseService {
 	}
 
 	public Curso update(Integer id, Curso upCurso) {
-		try {
-			Curso entity = repository.getReferenceById(id);
-			entity.setNome(upCurso.getNome());
-			entity.setDescricao(upCurso.getDescricao());
-			return repository.save(entity);
-		} catch (EntityNotFoundException e) {
-			throw new EntityNotFoundExceptions("Course: " + id + " doesn't exist");
-		} catch (DataIntegrityViolationException e) {
-			throw new DataExceptions("There are Null fields");
-		}
-
+	    return repository.findById(id)
+	        .map(entity -> {
+	            entity.setNome(upCurso.getNome());
+	            entity.setDescricao(upCurso.getDescricao());
+	            return repository.save(entity);
+	        })
+	        .orElseThrow(() -> new EntityNotFoundExceptions("Course: " + id + " doesn't exist"));
 	}
 }
+

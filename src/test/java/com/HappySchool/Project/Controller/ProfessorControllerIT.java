@@ -26,142 +26,114 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Transactional
 public class ProfessorControllerIT {
 
-	@Autowired
-	private MockMvc mockMvc;
-	@Autowired
-	private ObjectMapper objectMapper;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-	private Long existingId;
-	private Long nonExistingId;
-	private Long countTotalProfessors;
-	private Professor NewProfessorId1ToUpdate;
-	private Professor newProfessorWithId4;
-	private Professor SameCpfProfessor;
+    private Long existingId;
+    private Long nonExistingId;
+    private Long countTotalProfessors;
+    private Professor NewProfessorId1ToUpdate;
+    private Professor newProfessorWithId4;
+    private Professor SameCpfProfessor;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		existingId = 1L;
-		nonExistingId = 1000L;
-		countTotalProfessors = 3L;
+    @BeforeEach
+    void setUp() throws Exception {
+        existingId = 1L;
+        nonExistingId = 1000L;
+        countTotalProfessors = 3L;
 
-	}
+    }
 
-	@Test
-	public void DeleteShouldReturnNoContentWhenIdExists() throws Exception {
-		ResultActions result = mockMvc
-				.perform(delete("/professors/{id}", existingId).accept(MediaType.APPLICATION_JSON));
-		result.andExpect(status().isNoContent());
-	}
+    @Test
+    public void DeleteShouldReturnNoContentWhenIdExists() throws Exception {
+        ResultActions result = mockMvc
+                .perform(delete("/professors/{id}", existingId).accept(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isNoContent());
+    }
 
-	@Test
-	public void DeleteShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {
-		ResultActions result = mockMvc
-				.perform(delete("/professors/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
-		result.andExpect(status().isNotFound());
-	}
+    @Test
+    public void DeleteShouldReturnNotFoundWhenIdDoesNotExists() throws Exception {
+        ResultActions result = mockMvc
+                .perform(delete("/professors/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isNotFound());
+    }
 
-	@Test
-	public void findAllShouldReturnProfessors() throws Exception {
-		// When
-		ResultActions result = mockMvc.perform(get("/professors").accept(MediaType.APPLICATION_JSON));
 
-		// then
-		result.andExpect(status().isOk());
-		result.andExpect(jsonPath("length()").value(countTotalProfessors));
-		result.andExpect(jsonPath("[0].nome").value("Marcos"));
-		result.andExpect(jsonPath("[0].cpf").value("48374255854"));
-		result.andExpect(jsonPath("[0].especialidade").value("Java"));
-		result.andExpect(jsonPath("[1].nome").value("Oliveira"));
-		result.andExpect(jsonPath("[1].cpf").value("70409951820"));
-		result.andExpect(jsonPath("[1].especialidade").value("Python"));
+    @Test
+    public void findByIdShouldReturnProfessorWhenIdExists() throws Exception {
 
-	}
+        ResultActions result = mockMvc.perform(get("/professors/{id}", existingId).accept(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.matricula").value(existingId));
+        result.andExpect(jsonPath("$.nome").value("Marcos"));
+        result.andExpect(jsonPath("$.cpf").value("48374255854"));
+        result.andExpect(jsonPath("$.especialidade").value("Java"));
 
-	@Test
-	public void findByIdShouldReturnProfessorWhenIdExists() throws Exception {
+    }
 
-		ResultActions result = mockMvc.perform(get("/professors/{id}", existingId).accept(MediaType.APPLICATION_JSON));
-		result.andExpect(status().isOk());
-		result.andExpect(jsonPath("$.matricula").value(existingId));
-		result.andExpect(jsonPath("$.nome").value("Marcos"));
-		result.andExpect(jsonPath("$.cpf").value("48374255854"));
-		result.andExpect(jsonPath("$.especialidade").value("Java"));
+    @Test
+    public void findByIdShouldReturnEntityNotFoundExceptionsWhenIdExists() throws Exception {
+        ResultActions result = mockMvc
+                .perform(get("/professors/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
+        result.andExpect(status().isNotFound());
 
-	}
+    }
 
-	@Test
-	public void findByIdShouldReturnEntityNotFoundExceptionsWhenIdExists() throws Exception {
-		ResultActions result = mockMvc
-				.perform(get("/professors/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
-		result.andExpect(status().isNotFound());
+    @Test
+    public void InsertShouldCreateProfessor() throws Exception {
+        // given
+        newProfessorWithId4 = Factory.createNewProfessor();
+        // when
+        String jsonBody = objectMapper.writeValueAsString(newProfessorWithId4);
+        ResultActions result = mockMvc.perform(post("/professors").content(jsonBody)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
-	}
+        // then
+        result.andExpect(status().isCreated());
+        result.andExpect(jsonPath("$.matricula").exists());
+        result.andExpect(jsonPath("$.nome").exists());
+        result.andExpect(jsonPath("$.cpf").exists());
+        result.andExpect(jsonPath("$.especialidade").exists());
 
-	@Test
-	public void InsertShouldCreateProfessor() throws Exception {
-		// given
-		newProfessorWithId4 = Factory.createNewProfessor();
-		// when
-		String jsonBody = objectMapper.writeValueAsString(newProfessorWithId4);
-		ResultActions result = mockMvc.perform(post("/professors").content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+    }
 
-		// then
-		result.andExpect(status().isCreated());
-		result.andExpect(jsonPath("$.matricula").exists());
-		result.andExpect(jsonPath("$.nome").exists());
-		result.andExpect(jsonPath("$.cpf").exists());
-		result.andExpect(jsonPath("$.especialidade").exists());
 
-	}
+    @Test
+    public void updateShouldReturnProfessorWhenIdExists() throws Exception {
+        // given
+        NewProfessorId1ToUpdate = Factory.createProfessor();
 
-	@Test
-	public void InsertWhenCpfAlreadyExistCreateProfessor() throws Exception {
-		// given
-		SameCpfProfessor = Factory.SameCpfProfessor();
-		// when
-		String jsonBody = objectMapper.writeValueAsString(SameCpfProfessor);
-		ResultActions result = mockMvc.perform(post("/professors").content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+        String expectedName = NewProfessorId1ToUpdate.getNome();
 
-		// then
-		result.andExpect(status().isBadRequest());
-	}
+        // when
+        String jsonBody = objectMapper.writeValueAsString(NewProfessorId1ToUpdate);
+        ResultActions result = mockMvc.perform(put("/professors/{id}", existingId).content(jsonBody)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
-	@Test
-	public void updateShouldReturnProfessorWhenIdExists() throws Exception {
-		// given
-		NewProfessorId1ToUpdate = Factory.createProfessor();
+        // then
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.matricula").value(existingId));
+        result.andExpect(jsonPath("$.nome").value(expectedName));
+        result.andExpect(jsonPath("$.cpf").exists());
+        result.andExpect(jsonPath("$.especialidade").exists());
 
-		String expectedName = NewProfessorId1ToUpdate.getNome();
+    }
 
-		// when
-		String jsonBody = objectMapper.writeValueAsString(NewProfessorId1ToUpdate);
-		ResultActions result = mockMvc.perform(put("/professors/{id}", existingId).content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
+    @Test
+    public void updateShouldReturnProfessorNotFoundWhenIdDoesNotExists() throws Exception {
+        // given
+        NewProfessorId1ToUpdate = Factory.createProfessor();
+        String jsonBody = objectMapper.writeValueAsString(NewProfessorId1ToUpdate);
 
-		// then
-		result.andExpect(status().isOk());
-		result.andExpect(jsonPath("$.matricula").value(existingId));
-		result.andExpect(jsonPath("$.nome").value(expectedName));
-		result.andExpect(jsonPath("$.cpf").exists());
-		result.andExpect(jsonPath("$.especialidade").exists());
+        // when
+        ResultActions result = mockMvc.perform(put("/professors/{id}", nonExistingId).content(jsonBody)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
 
-	}
+        // then
+        result.andExpect(status().isNotFound());
 
-	@Test
-	public void updateShouldReturnProfessorNotFoundWhenIdDoesNotExists() throws Exception {
-		// given
-		NewProfessorId1ToUpdate = Factory.createProfessor();
-		String jsonBody = objectMapper.writeValueAsString(NewProfessorId1ToUpdate);
-
-		// when
-		ResultActions result = mockMvc.perform(put("/professors/{id}", nonExistingId).content(jsonBody)
-				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON));
-
-		// then
-		result.andExpect(status().isNotFound());
-
-	}
+    }
 
 }

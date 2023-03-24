@@ -17,6 +17,8 @@ import com.HappySchool.Project.repository.StudentRepository;
 import com.HappySchool.Project.servicesException.DataExceptions;
 import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class GradesService {
 
@@ -55,10 +57,12 @@ public class GradesService {
 	}
 
 	public void delete(Long studentId, Integer courseId) {
-		Student student = new Student(studentId);
-		Curso curso = new Curso(courseId);
-		GradesPK id = new GradesPK(student, curso);
-		repository.deleteById(id);
+	    GradesPK id = new GradesPK(new Student(studentId), new Curso(courseId));
+	    repository.findById(id).map(grades -> {
+	        repository.deleteById(id);
+	        return grades;
+	    }).orElseThrow(() -> new EntityNotFoundExceptions("id doesn't exist"));
 	}
-
 }
+
+

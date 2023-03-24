@@ -51,8 +51,6 @@ public class CurseServiceTests {
 	private Integer dependentId;
 	private Professor ProfessorSample;
 	private Professor ProfessorSample1;
-	private CursoDTO CursoDto;
-	private Professor ProfessorId;
 
 	@BeforeEach
 	void setUp() throws Exception {
@@ -63,7 +61,6 @@ public class CurseServiceTests {
 		CursoToUpdate = Factory.createCursoToUpdate();
 		ProfessorSample = Factory.createNewProfessor();
 		ProfessorSample1 = Factory.createProfessorId3();
-		CursoDto = Factory.createCursoDto();
 		Cursos = Arrays.asList(new Curso(null, "Java", "Java com Spring boot", ProfessorSample),
 				new Curso(null, "Python", "Python Jupyter", ProfessorSample1));
 
@@ -178,7 +175,6 @@ public class CurseServiceTests {
 	public void testFindAll() {
 
 		// when
-		when(repository.findById(existingId)).thenReturn(Optional.of(Curso));
 		Mockito.when(repository.findAll()).thenReturn(Cursos);
 		List<Curso> result = service.findAll();
 

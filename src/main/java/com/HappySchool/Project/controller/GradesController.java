@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.HappySchool.Project.entities.Curso;
 import com.HappySchool.Project.entities.Grades;
-import com.HappySchool.Project.entities.Student;
 import com.HappySchool.Project.entities.dto.GradesDTO;
 import com.HappySchool.Project.services.GradesService;
 
@@ -38,7 +36,8 @@ public class GradesController {
 	@PostMapping
 	public ResponseEntity<Grades> insert(@RequestBody @Valid GradesDTO grades) {
 		Grades obj = service.insert(grades);
-		return ResponseEntity.ok().body(obj);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{studentId}/{courseId}").buildAndExpand(obj.getStudent().getMatricula(), obj.getCurso().getId()).toUri();
+		return ResponseEntity.created(uri).body(obj);
 	}
 	
 	@DeleteMapping(value = "/{studentId}/{courseId}")

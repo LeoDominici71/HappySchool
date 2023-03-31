@@ -31,8 +31,6 @@ import com.HappySchool.Project.services.GradesService;
 import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
 import com.HappySchool.Project.tests.Factory;
 
-import jakarta.persistence.EntityNotFoundException;
-
 @ExtendWith(SpringExtension.class)
 public class GradesServiceTests {
 
@@ -114,7 +112,7 @@ public class GradesServiceTests {
 		// mock repository behavior
 		Mockito.when(CursoRepository.findById(1)).thenReturn(Optional.of(curso));
 		Mockito.when(StudentRepository.findById(1L)).thenReturn(Optional.of(student));
-		Mockito.when(repository.save(Mockito.any(Grades.class))).thenReturn(new Grades());
+		Mockito.when(repository.save(Mockito.any())).thenReturn(new Grades());
 
 		// call the method being tested
 		Grades result = service.insert(dto);
@@ -158,19 +156,39 @@ public class GradesServiceTests {
 		// create mock Student
 		Student student = Factory.createNewStudent();
 
+		// mock repository behavior
+		assertThrows(EntityNotFoundExceptions.class, () -> {
+			service.delete(student.getMatricula(), curso.getId());
+		});
+
+	}
+
+	@Test
+	public void ShouldThrowEntityNotFoundWhenDeleteNonExistingIdStudent() {
+		// create mock professor
+		Professor professor = new Professor();
+		professor.setMatricula(1L);
+		professor.setNome("Professor Teste");
+		professor.setCpf("82437975055");
+		professor.setEspecialidade("Java");
+
+		// create mock Curso
+		Curso curso = new Curso(1, "Java", "Java com Spring", professor);
+
+		// create mock Student
+		Student student = new Student(1000L, "Jane Doe", "70409951820");
 
 		// mock repository behavior
 		assertThrows(EntityNotFoundExceptions.class, () -> {
-		        service.delete(student.getMatricula(), curso.getId());
-		    });
-
+			service.delete(student.getMatricula(), curso.getId());
+		});
 
 	}
 
 	@Test
 	public void testDelete() {
 		// create input DTO
-		GradesDTO dto = new GradesDTO(StudentExistingId, NonExistingCourseId, 9.0);
+		GradesDTO dto = new GradesDTO(StudentExistingId, CourseExistingId, 9.0);
 
 		// create mock professor
 		Professor professor = new Professor();
@@ -191,13 +209,115 @@ public class GradesServiceTests {
 		// mock repository behavior
 
 		Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(grades));
-		doNothing().when(repository).delete(Mockito.any());
+		doNothing().when(repository).deleteById(Mockito.any());
 
 		// call the method being tested
-		service.delete(student.getMatricula(), curso.getId());
+		service.delete(dto.getStudentId(), dto.getCourseId());
 
 		// assert the repository methods were called
 		Mockito.verify(repository, Mockito.times(1)).findById(Mockito.any());
 		Mockito.verify(repository, Mockito.times(1)).deleteById(Mockito.any());
+
+	}
+
+	@Test
+	public void testUpdate() {
+		// create input DTO
+		GradesDTO dto = new GradesDTO(StudentExistingId, CourseExistingId, 9.0);
+
+		// create mock professor
+		Professor professor = new Professor();
+		professor.setMatricula(1L);
+		professor.setNome("Oliveira");
+		professor.setCpf("82437975055");
+		professor.setEspecialidade("Java");
+
+		// create mock Curso
+		Curso curso = new Curso(CourseExistingId, "Java", "Java com Spring", professor);
+
+		// create mock Student
+		Student student = new Student();
+		student.setMatricula(StudentExistingId);
+		student.setNome("Student Teste");
+
+		// create mock Grades
+		Grades grades = new Grades(curso, student, dto.getGrades());
+
+		// mock repository behavior
+		Mockito.when(repository.findById(Mockito.any())).thenReturn(Optional.of(grades));
+		Mockito.when(repository.save(Mockito.any())).thenReturn(grades);
+
+		// create new mock Grades
+		Grades newgrades = new Grades(curso, student, 8.0);
+
+		// call the method being tested
+		Grades updatedGrades = service.update(StudentExistingId, CourseExistingId, newgrades);
+
+		// assert the repository methods were called
+		Mockito.verify(repository, Mockito.times(1)).findById(Mockito.any());
+		Mockito.verify(repository, Mockito.times(1)).save(Mockito.any());
+
+		// assert that the output is as expected
+		assertEquals(8.0, updatedGrades.getGrades(), 0.001);
+	}
+
+	@Test
+	public void testUpdateWhenStudentIdDoesNotExist() {
+
+		// create mock professor
+		Professor professor = new Professor();
+		professor.setMatricula(1L);
+		professor.setNome("Oliveira");
+		professor.setCpf("82437975055");
+		professor.setEspecialidade("Java");
+
+		// create mock Curso
+		Curso curso = new Curso(CourseExistingId, "Java", "Java com Spring", professor);
+
+		// create mock Student
+		Student student = new Student();
+		student.setMatricula(StudentExistingId);
+		student.setNome("Student Teste");
+
+		// create new mock Grades
+		Grades newgrades = new Grades(curso, student, 8.0);
+
+		// call the method being tested
+
+		// assert the repository methods were called
+		assertThrows(EntityNotFoundExceptions.class, () -> {
+			service.update(NonExistingStudentId, CourseExistingId, newgrades);
+		});
+
+	}
+	
+	@Test
+	public void testUpdateWhenCourseIdDoesNotExist() {
+
+		// create mock professor
+		Professor professor = new Professor();
+		professor.setMatricula(1L);
+		professor.setNome("Oliveira");
+		professor.setCpf("82437975055");
+		professor.setEspecialidade("Java");
+
+		// create mock Curso
+		Curso curso = new Curso(CourseExistingId, "Java", "Java com Spring", professor);
+
+		// create mock Student
+		Student student = new Student();
+		student.setMatricula(StudentExistingId);
+		student.setNome("Student Teste");
+
+		// create new mock Grades
+		Grades newgrades = new Grades(curso, student, 8.0);
+
+		// call the method being tested
+
+		// assert the repository methods were called
+		assertThrows(EntityNotFoundExceptions.class, () -> {
+			service.update(StudentExistingId, NonExistingCourseId, newgrades);
+		});
+
 	}
 }

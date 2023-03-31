@@ -36,12 +36,12 @@ public class Grades implements Serializable {
 		this.grades = grades;
 
 	}
-
+	@JsonIgnore
 	public Curso getCurso() {
 		return id.getCurso();
 
 	}
-
+	
 	public void setCurso(Curso curso) {
 		id.setCurso(curso);
 

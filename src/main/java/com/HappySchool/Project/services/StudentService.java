@@ -4,17 +4,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.HappySchool.Project.entities.Curso;
+import com.HappySchool.Project.entities.Grades;
 import com.HappySchool.Project.entities.Student;
+import com.HappySchool.Project.entities.pk.GradesPK;
 import com.HappySchool.Project.repository.StudentRepository;
 import com.HappySchool.Project.servicesException.DatabaseExceptions;
 import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
 import com.HappySchool.Project.servicesException.RegistrationExceptions;
-
-import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class StudentService {
@@ -41,12 +40,11 @@ public class StudentService {
 		return StudentOptional.isPresent();
 	}
 
-	public Student insert(Student obj) throws RegistrationExceptions {
+	public Student insert(Student obj) {
 		if (cpfExists(obj.getCpf())) {
-			throw new RegistrationExceptions("This CPF already exist");
+			throw new RegistrationExceptions("This CPF is existent or invalid");
 		}
 		return repository.save(obj);
-
 	}
 
 	public void delete(Long matricula) {
@@ -59,8 +57,6 @@ public class StudentService {
 			throw new DatabaseExceptions("Cannot execute this action");
 		}
 	}
-	
-	
 
 	public Student update(Long matricula, Student student) {
 		return repository.findById(matricula).map(students -> {
@@ -69,4 +65,5 @@ public class StudentService {
 		}).orElseThrow(() -> new EntityNotFoundExceptions("Student not found"));
 
 	}
+
 }

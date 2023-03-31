@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.HappySchool.Project.entities.Curso;
 import com.HappySchool.Project.entities.Grades;
@@ -17,23 +20,34 @@ import com.HappySchool.Project.repository.StudentRepository;
 import com.HappySchool.Project.servicesException.DataExceptions;
 import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
 
-import jakarta.persistence.EntityNotFoundException;
-
 @Service
 public class GradesService {
 
 	@Autowired
-	private GradesRepository repository;
+	private final GradesRepository repository;
 
 	@Autowired
-	private CouseRepository cursorepository;
+	private final CouseRepository cursorepository;
 
 	@Autowired
-	private StudentRepository studentrepository;
+	private final StudentRepository studentrepository;
+
+	public GradesService(GradesRepository repository, CouseRepository cursorepository,
+			StudentRepository studentrepository) {
+		this.repository = repository;
+		this.cursorepository = cursorepository;
+		this.studentrepository = studentrepository;
+	}
 
 	public List<Grades> findAll() {
 		return repository.findAll();
 
+	}
+
+	public Grades findById(Long studentId, Integer courseId) {
+		GradesPK id = new GradesPK(new Student(studentId), new Curso(courseId));
+		Grades grades = repository.findById(id).orElseThrow(() -> new EntityNotFoundExceptions("Student or Curso doesn't exist"));
+		return grades;
 	}
 
 	public Grades insert(GradesDTO dto) {
@@ -57,12 +71,19 @@ public class GradesService {
 	}
 
 	public void delete(Long studentId, Integer courseId) {
-	    GradesPK id = new GradesPK(new Student(studentId), new Curso(courseId));
-	    repository.findById(id).map(grades -> {
-	        repository.deleteById(id);
-	        return grades;
-	    }).orElseThrow(() -> new EntityNotFoundExceptions("id doesn't exist"));
+		GradesPK id = new GradesPK(new Student(studentId), new Curso(courseId));
+		repository.findById(id).map(grades -> {
+			repository.deleteById(id);
+			return grades;
+		}).orElseThrow(() -> new EntityNotFoundExceptions("id doesn't exist"));
 	}
+
+	public Grades update(Long studentId, Integer courseId, Grades newGrades) {
+		GradesPK id = new GradesPK(new Student(studentId), new Curso(courseId));
+		return repository.findById(id).map(grades -> {
+			grades.setGrades(newGrades.getGrades());
+			return repository.save(grades);
+		}).orElseThrow(() -> new EntityNotFoundExceptions("id doesn't exist"));
+	}
+
 }
-
-

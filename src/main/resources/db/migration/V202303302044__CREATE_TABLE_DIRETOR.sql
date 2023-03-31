@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS tb_diretor; CREATE TABLE tb_diretor (
+  matricula SERIAL PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  cpf VARCHAR(11) NOT NULL
+);

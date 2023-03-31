@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.HappySchool.Project.entities.Curso;
 import com.HappySchool.Project.entities.Grades;
 import com.HappySchool.Project.entities.dto.GradesDTO;
 import com.HappySchool.Project.services.GradesService;
@@ -32,19 +34,34 @@ public class GradesController {
 		List<Grades> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
-	
+
+	@GetMapping(value = "/student/{studentId}/curso/{courseId}")
+	public ResponseEntity<Grades> findById(@PathVariable Long studentId, @PathVariable Integer courseId) {
+		Grades grades = service.findById(studentId, courseId);
+		return ResponseEntity.ok().body(grades);
+	}
+
 	@PostMapping
 	public ResponseEntity<Grades> insert(@RequestBody @Valid GradesDTO grades) {
 		Grades obj = service.insert(grades);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{studentId}/{courseId}").buildAndExpand(obj.getStudent().getMatricula(), obj.getCurso().getId()).toUri();
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{studentId}/{courseId}")
+				.buildAndExpand(obj.getStudent().getMatricula(), obj.getCurso().getId()).toUri();
 		return ResponseEntity.created(uri).body(obj);
 	}
-	
-	@DeleteMapping(value = "/{studentId}/{courseId}")
-	public ResponseEntity<Grades> delete(@PathVariable("studentId") Long studentId, @PathVariable("courseId") Integer courseId) {
-		service.delete(studentId,courseId);
+
+	@DeleteMapping(value = "/student/{studentId}/curso/{courseId}")
+	public ResponseEntity<Grades> delete(@PathVariable Long studentId,
+			@PathVariable Integer courseId) {
+		service.delete(studentId, courseId);
 		return ResponseEntity.noContent().build();
 	}
 
+	@PutMapping(value = "/student/{studentId}/curso/{courseId}")
+	public ResponseEntity<Grades> update(@PathVariable Long studentId, @PathVariable Integer courseId,
+			@RequestBody Grades newGrade) {
+		Grades newGrades = service.update(studentId, courseId, newGrade);
+		return ResponseEntity.ok().body(newGrades);
+
+	}
 
 }

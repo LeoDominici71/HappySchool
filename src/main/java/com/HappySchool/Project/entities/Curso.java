@@ -39,6 +39,8 @@ public class Curso {
 		this.nome = nome;
 		this.descricao = descricao;
 	}
+	
+	
 
 	public Curso(Integer id, String nome, String descricao, Professor professor) {
 		super();

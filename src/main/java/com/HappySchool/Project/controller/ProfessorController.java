@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,22 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.HappySchool.Project.entities.Professor;
-import com.HappySchool.Project.entities.Student;
 import com.HappySchool.Project.entities.dto.ProfessorCreateDTO;
 import com.HappySchool.Project.entities.dto.ProfessorDTO;
-import com.HappySchool.Project.entities.dto.StudentDTO;
 import com.HappySchool.Project.services.ProfessorService;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/professors")
+@CrossOrigin("http://localhost:4200")
 public class ProfessorController {
 
 	@Autowired
 	private ProfessorService service;
 
-	@GetMapping // GET
+	@GetMapping // GETS
 	public List<ProfessorDTO> findAll() {
 		return service.findAll().stream().map(ProfessorDTO::from).toList();
 	}
@@ -47,13 +47,8 @@ public class ProfessorController {
 	}
 
 	@PostMapping
-	public ResponseEntity<?> Insert(@Valid @RequestBody ProfessorCreateDTO dto, BindingResult result) {
-		if (result.hasErrors()) {
-			List<String> errors = result.getAllErrors().stream().map(error -> error.getDefaultMessage())
-					.collect(Collectors.toList());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-		}
-
+	public ResponseEntity<?> Insert(@Valid @RequestBody ProfessorCreateDTO dto) {
+		
 		Professor savedProfessor = service.insert(dto.toEntity());
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{matricula}")
 				.buildAndExpand(savedProfessor.getMatricula()).toUri();

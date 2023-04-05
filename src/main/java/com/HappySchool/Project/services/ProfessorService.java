@@ -2,14 +2,20 @@ package com.HappySchool.Project.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.HappySchool.Project.entities.Professor;
 import com.HappySchool.Project.repository.ProfessorRepository;
 import com.HappySchool.Project.servicesException.DatabaseExceptions;
 import com.HappySchool.Project.servicesException.EntityNotFoundExceptions;
+import com.HappySchool.Project.servicesException.MethodArgumentNotValidExceptions;
 import com.HappySchool.Project.servicesException.RegistrationExceptions;
 
 @Service

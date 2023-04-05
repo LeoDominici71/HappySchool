@@ -3,11 +3,8 @@ package com.HappySchool.Project.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.HappySchool.Project.entities.Curso;
 import com.HappySchool.Project.entities.Grades;
@@ -65,7 +62,7 @@ public class GradesService {
 			grades.setStudent(student);
 
 			return repository.save(grades);
-		} catch (DataIntegrityViolationException e) {
+		} catch (InvalidDataAccessApiUsageException e) {
 			throw new DataExceptions("There are Null fields");
 		}
 	}
